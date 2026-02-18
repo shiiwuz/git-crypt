@@ -1,0 +1,51 @@
+name: build-binary
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref (branch/tag/SHA) to build. Leave empty to build the branch that triggered the run."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  build-linux:
+    name: linux-x86_64
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          fetch-depth: 0
+
+      - name: Install build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            libssl-dev
+
+      - name: Build
+        run: |
+          make -j"$(nproc)"
+          ./git-crypt --version || true
+
+      - name: Package
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          cp -v git-crypt dist/
+          cp -v COPYING dist/
+          (cd dist && tar -czf ../git-crypt-linux-x86_64.tar.gz .)
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: git-crypt-linux-x86_64
+          path: git-crypt-linux-x86_64.tar.gz
+          if-no-files-found: error
