@@ -11,7 +11,7 @@ BINDIR ?= $(PREFIX)/bin
 MANDIR ?= $(PREFIX)/share/man
 
 ENABLE_MAN ?= no
-DOCBOOK_XSL ?= http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl
+DOCBOOK_XSL ?= http://cdn.docbook.org/release/xsl-nons/current/manpages/docbook.xsl
 
 OBJFILES = \
     git-crypt.o \
@@ -24,7 +24,7 @@ OBJFILES = \
     coprocess.o \
     fhstream.o
 
-OBJFILES += crypto-openssl-10.o crypto-openssl-11.o
+OBJFILES += crypto-openssl-11.o
 LDFLAGS += -lcrypto
 
 XSLTPROC ?= xsltproc
